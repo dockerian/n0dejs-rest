@@ -1,0 +1,34 @@
+{
+  "uuid": "{afe61e14-2c5f-49e8-8b68-ad1fb55fc052}",
+  "description": "Webhook Description",
+  "url": "https://webhookendpoint.com/",
+  "subject_type": "repository",
+  "subject": {
+    "uuid": "{402bc0c3-4e0d-40b5-8c5e-942b86dbed9b}",
+    "full_name": "user/repository",
+    "name": "repository",
+    "links": {
+      "self": {
+        "href": "https://api.bitbucket.org/2.0/repositories/user/repository"
+      },
+      "html": {
+        "href": "https://bitbucket.org/user/repository"
+      },
+      "avatar": {
+        "href": "https://bitbucket.org/m/ab33c0342a4c/img/language-avatars/default_16.png"
+      }
+    }
+  },
+  "events": [
+    "repo:push",
+    "issue:created",
+    "issue:updated"
+  ],
+  "active": true,
+  "created_at": "2015-05-18T18:44:47.225864Z",
+  "links": {
+    "self": {
+      "href": "https://api.bitbucket.org/2.0/repositories/user/repository/hooks/%7Bafe61e14-2c5f-49e8-8b68-ad1fb55fc052%7D"
+    }
+  }
+}

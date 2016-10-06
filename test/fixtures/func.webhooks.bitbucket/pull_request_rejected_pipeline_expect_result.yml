@@ -1,0 +1,36 @@
+---
+  resource_types: []
+  resources: []
+  jobs: 
+    - 
+      name: "start-job-in-pipeline"
+      public: true
+      serial: true
+      plan: 
+        - 
+          task: "Deleting-Temporary-Application"
+          config: 
+            platform: "linux"
+            n0dejs_logfile: "delete_app_log.txt"
+            image_resource: 
+              name: "ignored"
+              type: "docker-image"
+              source: 
+                repository: "registry-1.docker.io/foobar/n0dejs-cloud-foundry-worker"
+                tag: "kosher-prod"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            outputs: 
+              - 
+                name: "deploy_output"
+            params: 
+              skip_ssl_validation: true
+              manifest: "manifest.yml"
+              cf_application_name: "45f28aad2a4289f804f30ac3a385f71999415b0d"
+            run: 
+              path: "sh"
+              args: 
+                - "-c"
+                - "/scripts/cfdelete"
+      max_in_flight: 1

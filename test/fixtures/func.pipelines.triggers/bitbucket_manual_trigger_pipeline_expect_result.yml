@@ -1,0 +1,335 @@
+---
+  resource_types: []
+  resources:
+    -
+      name: "n0dejs-git-repo"
+      type: "git"
+      source:
+        uri: "https://x-token-auth:a_project_token@bitbucket.org/flacnut/node-docker-hello.git"
+        branch: "master"
+        skip_ssl_verification: false
+  jobs:
+    -
+      name: "start-job-in-pipeline"
+      public: true
+      serial: true
+      plan:
+        -
+          get: "n0dejs-git-repo"
+          version:
+            ref: "61d9e64348f9da407e62f64726337fd3bb24b466"
+        -
+          task: "create-build-event"
+          config:
+            platform: "linux"
+            image_resource:
+              name: "ignored"
+              type: "docker-image"
+              source:
+                repository: "registry-1.docker.io/foobar/n0dejs-build-event-notification-resource"
+                tag: "kosher-prod"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            inputs: []
+            run:
+              path: "sh"
+              args:
+                - "-c"
+                - "/scripts/notify"
+            params:
+              n0dejs_api_server_url: "https://192.168.1.3:3001/v2"
+              build_id: 3
+              event_type: "Building Started"
+              event_result: "running"
+              event_success_status: "succeeded"
+              event_failure_status: "failed"
+              uaa_endpoint_url: "https://api.uaa.endpoint.com:443"
+              service_account_client_id: "n0dejs-api-service"
+              service_account_client_secret: "client_secret"
+        -
+          task: "Building"
+          config:
+            platform: "linux"
+            n0dejs_logfile: "build_log.txt"
+            image_resource:
+              name: "ignored"
+              type: "docker-image"
+              source:
+                repository: "n0dejs/api-base-nodejs"
+                tag: "kosher-prod"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            inputs:
+              -
+                name: "n0dejs-git-repo"
+                path: ""
+            outputs:
+              -
+                name: "build_code_output"
+                path: ""
+            run:
+              path: "sh"
+              args:
+                - "-c"
+                - "/src/bin/build.sh ${PWD}/n0dejs-git-repo ${PWD}/build_code_output >> /tmp/build_log.txt 2>&1 ; echo $? > build_code_output/exitcode ; cp /tmp/build_log.txt build_code_output/build_log.txt; cat build_code_output/build_log.txt"
+          ensure:
+            task: "create-build-event"
+            config:
+              platform: "linux"
+              image_resource:
+                name: "ignored"
+                type: "docker-image"
+                source:
+                  repository: "registry-1.docker.io/foobar/n0dejs-build-event-notification-resource"
+                  tag: "kosher-prod"
+                  username: "dockerhub_user"
+                  password: "dockerhub_password"
+                  email: "dockerhub_email@email.com"
+              inputs:
+                -
+                  name: "build_code_output"
+              run:
+                path: "sh"
+                args:
+                  - "-c"
+                  - "/scripts/notify"
+              params:
+                n0dejs_api_server_url: "https://192.168.1.3:3001/v2"
+                build_id: 3
+                event_type: "Building"
+                event_result: "succeeded"
+                event_success_status: "succeeded"
+                event_failure_status: "failed"
+                uaa_endpoint_url: "https://api.uaa.endpoint.com:443"
+                service_account_client_id: "n0dejs-api-service"
+                service_account_client_secret: "client_secret"
+                event_exit_code: "env://build_code_output/exitcode"
+                event_start_time: "env://build_code_output/starttime"
+                event_end_time: "env://build_code_output/endtime"
+                event_log: "build_code_output/build_log.txt"
+        -
+          task: "create-build-event"
+          config:
+            platform: "linux"
+            image_resource:
+              name: "ignored"
+              type: "docker-image"
+              source:
+                repository: "registry-1.docker.io/foobar/n0dejs-build-event-notification-resource"
+                tag: "kosher-prod"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            inputs: []
+            run:
+              path: "sh"
+              args:
+                - "-c"
+                - "/scripts/notify"
+            params:
+              n0dejs_api_server_url: "https://192.168.1.3:3001/v2"
+              build_id: 3
+              event_type: "Testing Started"
+              event_result: "running"
+              event_success_status: "succeeded"
+              event_failure_status: "failed"
+              uaa_endpoint_url: "https://api.uaa.endpoint.com:443"
+              service_account_client_id: "n0dejs-api-service"
+              service_account_client_secret: "client_secret"
+        -
+          task: "Testing"
+          config:
+            platform: "linux"
+            n0dejs_logfile: "test_log.txt"
+            image_resource:
+              name: "ignored"
+              type: "docker-image"
+              source:
+                repository: "n0dejs/api-base-nodejs"
+                tag: "kosher-prod"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            inputs:
+              -
+                name: "build_code_output"
+                path: ""
+            outputs:
+              -
+                name: "test_code_output"
+                path: ""
+            run:
+              path: "sh"
+              args:
+                - "-c"
+                - "/src/bin/test.sh ${PWD}/build_code_output ${PWD}/test_code_output >>/tmp/test_log.txt 2>&1 ; echo $? > test_code_output/exitcode ; cp /tmp/test_log.txt test_code_output/test_log.txt; cat test_code_output/test_log.txt"
+          ensure:
+            task: "create-build-event"
+            config:
+              platform: "linux"
+              image_resource:
+                name: "ignored"
+                type: "docker-image"
+                source:
+                  repository: "registry-1.docker.io/foobar/n0dejs-build-event-notification-resource"
+                  tag: "kosher-prod"
+                  username: "dockerhub_user"
+                  password: "dockerhub_password"
+                  email: "dockerhub_email@email.com"
+              inputs:
+                -
+                  name: "test_code_output"
+              run:
+                path: "sh"
+                args:
+                  - "-c"
+                  - "/scripts/notify"
+              params:
+                n0dejs_api_server_url: "https://192.168.1.3:3001/v2"
+                build_id: 3
+                event_type: "Testing"
+                event_result: "succeeded"
+                event_success_status: "succeeded"
+                event_failure_status: "failed"
+                uaa_endpoint_url: "https://api.uaa.endpoint.com:443"
+                service_account_client_id: "n0dejs-api-service"
+                service_account_client_secret: "client_secret"
+                event_exit_code: "env://test_code_output/exitcode"
+                event_start_time: "env://test_code_output/starttime"
+                event_end_time: "env://test_code_output/endtime"
+                event_log: "test_code_output/test_log.txt"
+        -
+          task: "create-build-event"
+          config:
+            platform: "linux"
+            image_resource:
+              name: "ignored"
+              type: "docker-image"
+              source:
+                repository: "registry-1.docker.io/foobar/n0dejs-build-event-notification-resource"
+                tag: "kosher-prod"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            inputs: []
+            run:
+              path: "sh"
+              args:
+                - "-c"
+                - "/scripts/notify"
+            params:
+              n0dejs_api_server_url: "https://192.168.1.3:3001/v2"
+              build_id: 3
+              event_type: "Deploying Started"
+              event_result: "running"
+              event_success_status: "succeeded"
+              event_failure_status: "failed"
+              uaa_endpoint_url: "https://api.uaa.endpoint.com:443"
+              service_account_client_id: "n0dejs-api-service"
+              service_account_client_secret: "client_secret"
+        -
+          task: "Deploying"
+          config:
+            platform: "linux"
+            n0dejs_logfile: "deploy_log.txt"
+            image_resource:
+              name: "ignored"
+              type: "docker-image"
+              source:
+                repository: "registry-1.docker.io/foobar/n0dejs-cloud-foundry-worker"
+                tag: "kosher-prod"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            inputs:
+              -
+                name: "build_code_output"
+                path: "app"
+            outputs:
+              -
+                name: "deploy_output"
+            params:
+              cf_target_username: "foobar"
+              cf_target_password: "asldjlaksjd"
+              cf_target_organization: "DevEx"
+              cf_target_space: "N0deJSAPI"
+              skip_ssl_validation: true
+              manifest: "manifest.yml"
+              cf_user_provided_service_name: "api-n0dejs-sample-app"
+              n0dejs_api_url: "http://n0dejs.com/v2"
+              n0dejs_pipeline_id: 1
+              n0dejs_execution_id: 3
+              cf_application_path: "app/app"
+            run:
+              path: "sh"
+              args:
+                - "-c"
+                - "date -u +'%Y-%m-%dT%H:%M:%SZ'>deploy_output/starttime;(local rc=0; /scripts/cfdeploy >>deploy_output/deploy_log.txt 2>&1; rc=$?;/scripts/get_application_url $cf_application_path/$manifest $rc >>deploy_output/applicationurl; exit $rc);echo $? > deploy_output/exitcode;/scripts/get_additional_logs $cf_application_path/$manifest $(echo deploy_output/exitcode)>>deploy_output/deploy_log.txt 2>&1;cat deploy_output/deploy_log.txt;date -u +'%Y-%m-%dT%H:%M:%SZ'>deploy_output/endtime;"
+          ensure:
+            task: "create-build-event"
+            config:
+              platform: "linux"
+              image_resource:
+                name: "ignored"
+                type: "docker-image"
+                source:
+                  repository: "registry-1.docker.io/foobar/n0dejs-build-event-notification-resource"
+                  tag: "kosher-prod"
+                  username: "dockerhub_user"
+                  password: "dockerhub_password"
+                  email: "dockerhub_email@email.com"
+              inputs:
+                -
+                  name: "deploy_output"
+              run:
+                path: "sh"
+                args:
+                  - "-c"
+                  - "/scripts/notify"
+              params:
+                n0dejs_api_server_url: "https://192.168.1.3:3001/v2"
+                build_id: 3
+                event_type: "Deploying"
+                event_result: "succeeded"
+                event_success_status: "succeeded"
+                event_failure_status: "failed"
+                uaa_endpoint_url: "https://api.uaa.endpoint.com:443"
+                service_account_client_id: "n0dejs-api-service"
+                service_account_client_secret: "client_secret"
+                application_url: "env://deploy_output/applicationurl"
+                event_exit_code: "env://deploy_output/exitcode"
+                event_start_time: "env://deploy_output/starttime"
+                event_end_time: "env://deploy_output/endtime"
+                event_log: "deploy_output/deploy_log.txt"
+        -
+          task: "create-build-event"
+          config:
+            platform: "linux"
+            image_resource:
+              name: "ignored"
+              type: "docker-image"
+              source:
+                repository: "registry-1.docker.io/foobar/n0dejs-build-event-notification-resource"
+                tag: "kosher-prod"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            inputs: []
+            run:
+              path: "sh"
+              args:
+                - "-c"
+                - "/scripts/notify"
+            params:
+              n0dejs_api_server_url: "https://192.168.1.3:3001/v2"
+              build_id: 3
+              event_type: "Pipeline Completed"
+              event_result: "succeeded"
+              event_success_status: "succeeded"
+              event_failure_status: "failed"
+              uaa_endpoint_url: "https://api.uaa.endpoint.com:443"
+              service_account_client_id: "n0dejs-api-service"
+              service_account_client_secret: "client_secret"
+      max_in_flight: 1

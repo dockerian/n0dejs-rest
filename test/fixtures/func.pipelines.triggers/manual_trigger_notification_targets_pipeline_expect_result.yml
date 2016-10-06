@@ -1,0 +1,937 @@
+---
+  resource_types:
+    -
+      name: "hipchat_notifier_type_1"
+      type: "docker-image"
+      source:
+        repository: "registry-1.docker.io/n0dejs/hipchat-notification-resource"
+        tag: "kosher-prod"
+        registry_mirror: "http://registry-mirror:5000"
+        insecure_registries:
+          - "registry-mirror:5000"
+        username: "dockerhub_user"
+        password: "dockerhub_password"
+        email: "dockerhub_email@email.com"
+    -
+      name: "http_notifier_type_1"
+      type: "docker-image"
+      source:
+        repository: "registry-1.docker.io/n0dejs/http-notification-resource"
+        tag: "kosher-prod"
+        registry_mirror: "http://registry-mirror:5000"
+        insecure_registries:
+          - "registry-mirror:5000"
+        username: "dockerhub_user"
+        password: "dockerhub_password"
+        email: "dockerhub_email@email.com"
+    -
+      name: "flowdock_notifier_type_1"
+      type: "docker-image"
+      source:
+        repository: "registry-1.docker.io/n0dejs/flowdock-notification-activity-resource"
+        tag: "kosher-prod"
+        registry_mirror: "http://registry-mirror:5000"
+        insecure_registries:
+          - "registry-mirror:5000"
+        username: "dockerhub_user"
+        password: "dockerhub_password"
+        email: "dockerhub_email@email.com"
+    -
+      name: "slack_notifier_type_2"
+      type: "docker-image"
+      source:
+        repository: "registry-1.docker.io/n0dejs/slack-notification-resource"
+        tag: "kosher-prod"
+        registry_mirror: "http://registry-mirror:5000"
+        insecure_registries:
+          - "registry-mirror:5000"
+        username: "dockerhub_user"
+        password: "dockerhub_password"
+        email: "dockerhub_email@email.com"
+  resources:
+    -
+      name: "n0dejs-git-repo"
+      type: "git"
+      source:
+        uri: "https://a_project_token@github.com/flacnut/node-docker-hello"
+        branch: "master"
+        skip_ssl_verification: false
+    -
+      name: "hipchat_notifier_1"
+      type: "hipchat_notifier_type_1"
+      source:
+        hipchat_server_url: "https://api.hpcloud.net/v2/room/12456"
+        token: "decrypted_08asd-0asd"
+    -
+      name: "http_notifier_1"
+      type: "http_notifier_type_1"
+      source:
+        uri: "https://requestb.in/room"
+    -
+      name: "flowdock_notifier_1"
+      type: "flowdock_notifier_type_1"
+      source:
+        flowdock_api_server_url: "https://flowdock/room"
+        flow_token: "decrypted_flowdocktoken"
+    -
+      name: "slack_notifier_2"
+      type: "slack_notifier_type_2"
+      source:
+        url: "https://hooks.slack.com/services/XXXX"
+        username: "N0deJS API"
+        channel: "decrypted_n0dejs"
+  jobs:
+    -
+      name: "start-job-in-pipeline"
+      public: true
+      serial: true
+      plan:
+        -
+          get: "n0dejs-git-repo"
+          version:
+            ref: "d8ee27e88db794d1cd8762be209f4c4103895a98"
+        -
+          task: "create-build-event"
+          config:
+            platform: "linux"
+            image_resource:
+              name: "ignored"
+              type: "docker-image"
+              source:
+                repository: "registry-1.docker.io/foobar/n0dejs-build-event-notification-resource"
+                tag: "kosher-prod"
+                registry_mirror: "http://registry-mirror:5000"
+                insecure_registries:
+                  - "registry-mirror:5000"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            inputs: []
+            run:
+              path: "sh"
+              args:
+                - "-c"
+                - "/scripts/notify"
+            params:
+              n0dejs_api_server_url: "https://192.168.1.3:3001/v2"
+              build_id: 3
+              event_type: "Building Started"
+              event_result: "running"
+              event_success_status: "succeeded"
+              event_failure_status: "failed"
+              uaa_endpoint_url: "https://api.uaa.endpoint.com:443"
+              service_account_client_id: "n0dejs-api-service"
+              service_account_client_secret: "client_secret"
+          on_success:
+            aggregate:
+              -
+                put: "hipchat_notifier_1"
+                params:
+                  message: "Building Started, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                  from: "N0deJS API"
+                  color: "yellow"
+              -
+                put: "http_notifier_1"
+                params:
+                  body: "{\"status\":\"Building Started\",\"commit\":{\"title\":\"FOR THE DEMO\",\"message\":\"FOR THE DEMO\",\"commitSha\":\"d8ee27e88db794d1cd8762be209f4c4103895a98\",\"commitUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"compareUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"timestamp\":\"2015-10-09T17:16:59Z\",\"author\":\"flacnut\",\"avatarUrl\":\"https://avatars.githubusercontent.com/u/2524397?v=3\",\"repo_branch\":\"master\",\"clone_url\":\"https://a_project_token@github.com/flacnut/node-docker-hello\"},\"build\":{\"id\":3},\"statusUri\":\"http://n0dejs.com/v2/pipelines/execution/3\"}"
+              -
+                put: "flowdock_notifier_1"
+                params:
+                  title: "FOR THE DEMO"
+                  body: "Building Started, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                  author_name: "flacnut"
+                  thread_id: "n0dejs_build_notification_3_d8ee27e88db794d1cd8762be209f4c4103895a98"
+                  thread_title: "FOR THE DEMO"
+                  thread_body: "Building Started, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                  thread_external_url: "http://n0dejs.com/v2/pipelines/execution/3"
+                  thread_status_color: "yellow"
+              -
+                put: "slack_notifier_2"
+                params:
+                  message: " "
+                  attachments:
+                    -
+                      fallback: "N0deJS API Status"
+                      color: "#ffcc00"
+                      title: "Building Started"
+                      title_link: "http://n0dejs.com/v2/pipelines/execution/3"
+                      fields:
+                        -
+                          title: "Commit"
+                          value: "<https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98|FOR THE DEMO>"
+                          short: true
+                        -
+                          title: "Branch"
+                          value: "master"
+                          short: true
+                        -
+                          title: "Committer"
+                          value: "flacnut"
+                          short: true
+                        -
+                          title: "Project"
+                          value: "sample-app"
+                          short: true
+        -
+          task: "Building"
+          config:
+            platform: "linux"
+            n0dejs_logfile: "build_log.txt"
+            image_resource:
+              name: "ignored"
+              type: "docker-image"
+              source:
+                repository: "n0dejs/api-base-nodejs"
+                tag: "kosher-prod"
+                registry_mirror: "http://registry-mirror:5000"
+                insecure_registries:
+                  - "registry-mirror:5000"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            inputs:
+              -
+                name: "n0dejs-git-repo"
+                path: ""
+            outputs:
+              -
+                name: "build_code_output"
+                path: ""
+            run:
+              path: "sh"
+              args:
+                - "-c"
+                - "/src/bin/build.sh ${PWD}/n0dejs-git-repo ${PWD}/build_code_output >> /tmp/build_log.txt 2>&1 ; echo $? > build_code_output/exitcode ; cp /tmp/build_log.txt build_code_output/build_log.txt; cat build_code_output/build_log.txt"
+          ensure:
+            task: "create-build-event"
+            config:
+              platform: "linux"
+              image_resource:
+                name: "ignored"
+                type: "docker-image"
+                source:
+                  repository: "registry-1.docker.io/foobar/n0dejs-build-event-notification-resource"
+                  tag: "kosher-prod"
+                  registry_mirror: "http://registry-mirror:5000"
+                  insecure_registries:
+                    - "registry-mirror:5000"
+                  username: "dockerhub_user"
+                  password: "dockerhub_password"
+                  email: "dockerhub_email@email.com"
+              inputs:
+                -
+                  name: "build_code_output"
+              run:
+                path: "sh"
+                args:
+                  - "-c"
+                  - "/scripts/notify"
+              params:
+                n0dejs_api_server_url: "https://192.168.1.3:3001/v2"
+                build_id: 3
+                event_type: "Building"
+                event_result: "succeeded"
+                event_success_status: "succeeded"
+                event_failure_status: "failed"
+                uaa_endpoint_url: "https://api.uaa.endpoint.com:443"
+                service_account_client_id: "n0dejs-api-service"
+                service_account_client_secret: "client_secret"
+                event_exit_code: "env://build_code_output/exitcode"
+                event_start_time: "env://build_code_output/starttime"
+                event_end_time: "env://build_code_output/endtime"
+                event_log: "build_code_output/build_log.txt"
+            on_success:
+              aggregate:
+                -
+                  put: "hipchat_notifier_1"
+                  params:
+                    message: "Building Succeeded, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    from: "N0deJS API"
+                    color: "green"
+                -
+                  put: "http_notifier_1"
+                  params:
+                    body: "{\"status\":\"Building Succeeded\",\"commit\":{\"title\":\"FOR THE DEMO\",\"message\":\"FOR THE DEMO\",\"commitSha\":\"d8ee27e88db794d1cd8762be209f4c4103895a98\",\"commitUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"compareUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"timestamp\":\"2015-10-09T17:16:59Z\",\"author\":\"flacnut\",\"avatarUrl\":\"https://avatars.githubusercontent.com/u/2524397?v=3\",\"repo_branch\":\"master\",\"clone_url\":\"https://a_project_token@github.com/flacnut/node-docker-hello\"},\"build\":{\"id\":3},\"statusUri\":\"http://n0dejs.com/v2/pipelines/execution/3\"}"
+                -
+                  put: "flowdock_notifier_1"
+                  params:
+                    title: "FOR THE DEMO"
+                    body: "Building Succeeded, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    author_name: "flacnut"
+                    thread_id: "n0dejs_build_notification_3_d8ee27e88db794d1cd8762be209f4c4103895a98"
+                    thread_title: "FOR THE DEMO"
+                    thread_body: "Building Succeeded, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    thread_external_url: "http://n0dejs.com/v2/pipelines/execution/3"
+                    thread_status_color: "green"
+                -
+                  put: "slack_notifier_2"
+                  params:
+                    message: " "
+                    attachments:
+                      -
+                        fallback: "N0deJS API Status"
+                        color: "good"
+                        title: "Building Succeeded"
+                        title_link: "http://n0dejs.com/v2/pipelines/execution/3"
+                        fields:
+                          -
+                            title: "Commit"
+                            value: "<https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98|FOR THE DEMO>"
+                            short: true
+                          -
+                            title: "Branch"
+                            value: "master"
+                            short: true
+                          -
+                            title: "Committer"
+                            value: "flacnut"
+                            short: true
+                          -
+                            title: "Project"
+                            value: "sample-app"
+                            short: true
+            on_failure:
+              aggregate:
+                -
+                  put: "hipchat_notifier_1"
+                  params:
+                    message: "Building Failed, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    from: "N0deJS API"
+                    color: "red"
+                -
+                  put: "http_notifier_1"
+                  params:
+                    body: "{\"status\":\"Building Failed\",\"commit\":{\"title\":\"FOR THE DEMO\",\"message\":\"FOR THE DEMO\",\"commitSha\":\"d8ee27e88db794d1cd8762be209f4c4103895a98\",\"commitUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"compareUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"timestamp\":\"2015-10-09T17:16:59Z\",\"author\":\"flacnut\",\"avatarUrl\":\"https://avatars.githubusercontent.com/u/2524397?v=3\",\"repo_branch\":\"master\",\"clone_url\":\"https://a_project_token@github.com/flacnut/node-docker-hello\"},\"build\":{\"id\":3},\"statusUri\":\"http://n0dejs.com/v2/pipelines/execution/3\"}"
+                -
+                  put: "flowdock_notifier_1"
+                  params:
+                    title: "FOR THE DEMO"
+                    body: "Building Failed, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    author_name: "flacnut"
+                    thread_id: "n0dejs_build_notification_3_d8ee27e88db794d1cd8762be209f4c4103895a98"
+                    thread_title: "FOR THE DEMO"
+                    thread_body: "Building Failed, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    thread_external_url: "http://n0dejs.com/v2/pipelines/execution/3"
+                    thread_status_color: "red"
+                -
+                  put: "slack_notifier_2"
+                  params:
+                    message: " "
+                    attachments:
+                      -
+                        fallback: "N0deJS API Status"
+                        color: "danger"
+                        title: "Building Failed"
+                        title_link: "http://n0dejs.com/v2/pipelines/execution/3"
+                        fields:
+                          -
+                            title: "Commit"
+                            value: "<https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98|FOR THE DEMO>"
+                            short: true
+                          -
+                            title: "Branch"
+                            value: "master"
+                            short: true
+                          -
+                            title: "Committer"
+                            value: "flacnut"
+                            short: true
+                          -
+                            title: "Project"
+                            value: "sample-app"
+                            short: true
+        -
+          task: "create-build-event"
+          config:
+            platform: "linux"
+            image_resource:
+              name: "ignored"
+              type: "docker-image"
+              source:
+                repository: "registry-1.docker.io/foobar/n0dejs-build-event-notification-resource"
+                tag: "kosher-prod"
+                registry_mirror: "http://registry-mirror:5000"
+                insecure_registries:
+                  - "registry-mirror:5000"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            inputs: []
+            run:
+              path: "sh"
+              args:
+                - "-c"
+                - "/scripts/notify"
+            params:
+              n0dejs_api_server_url: "https://192.168.1.3:3001/v2"
+              build_id: 3
+              event_type: "Testing Started"
+              event_result: "running"
+              event_success_status: "succeeded"
+              event_failure_status: "failed"
+              uaa_endpoint_url: "https://api.uaa.endpoint.com:443"
+              service_account_client_id: "n0dejs-api-service"
+              service_account_client_secret: "client_secret"
+          on_success:
+            aggregate:
+              -
+                put: "hipchat_notifier_1"
+                params:
+                  message: "Testing Started, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                  from: "N0deJS API"
+                  color: "yellow"
+              -
+                put: "http_notifier_1"
+                params:
+                  body: "{\"status\":\"Testing Started\",\"commit\":{\"title\":\"FOR THE DEMO\",\"message\":\"FOR THE DEMO\",\"commitSha\":\"d8ee27e88db794d1cd8762be209f4c4103895a98\",\"commitUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"compareUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"timestamp\":\"2015-10-09T17:16:59Z\",\"author\":\"flacnut\",\"avatarUrl\":\"https://avatars.githubusercontent.com/u/2524397?v=3\",\"repo_branch\":\"master\",\"clone_url\":\"https://a_project_token@github.com/flacnut/node-docker-hello\"},\"build\":{\"id\":3},\"statusUri\":\"http://n0dejs.com/v2/pipelines/execution/3\"}"
+              -
+                put: "flowdock_notifier_1"
+                params:
+                  title: "FOR THE DEMO"
+                  body: "Testing Started, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                  author_name: "flacnut"
+                  thread_id: "n0dejs_build_notification_3_d8ee27e88db794d1cd8762be209f4c4103895a98"
+                  thread_title: "FOR THE DEMO"
+                  thread_body: "Testing Started, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                  thread_external_url: "http://n0dejs.com/v2/pipelines/execution/3"
+                  thread_status_color: "yellow"
+              -
+                put: "slack_notifier_2"
+                params:
+                  message: " "
+                  attachments:
+                    -
+                      fallback: "N0deJS API Status"
+                      color: "#ffcc00"
+                      title: "Testing Started"
+                      title_link: "http://n0dejs.com/v2/pipelines/execution/3"
+                      fields:
+                        -
+                          title: "Commit"
+                          value: "<https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98|FOR THE DEMO>"
+                          short: true
+                        -
+                          title: "Branch"
+                          value: "master"
+                          short: true
+                        -
+                          title: "Committer"
+                          value: "flacnut"
+                          short: true
+                        -
+                          title: "Project"
+                          value: "sample-app"
+                          short: true
+        -
+          task: "Testing"
+          config:
+            platform: "linux"
+            n0dejs_logfile: "test_log.txt"
+            image_resource:
+              name: "ignored"
+              type: "docker-image"
+              source:
+                repository: "n0dejs/api-base-nodejs"
+                tag: "kosher-prod"
+                registry_mirror: "http://registry-mirror:5000"
+                insecure_registries:
+                  - "registry-mirror:5000"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            inputs:
+              -
+                name: "build_code_output"
+                path: ""
+            outputs:
+              -
+                name: "test_code_output"
+                path: ""
+            run:
+              path: "sh"
+              args:
+                - "-c"
+                - "/src/bin/test.sh ${PWD}/build_code_output ${PWD}/test_code_output >>/tmp/test_log.txt 2>&1 ; echo $? > test_code_output/exitcode ; cp /tmp/test_log.txt test_code_output/test_log.txt; cat test_code_output/test_log.txt"
+          ensure:
+            task: "create-build-event"
+            config:
+              platform: "linux"
+              image_resource:
+                name: "ignored"
+                type: "docker-image"
+                source:
+                  repository: "registry-1.docker.io/foobar/n0dejs-build-event-notification-resource"
+                  tag: "kosher-prod"
+                  registry_mirror: "http://registry-mirror:5000"
+                  insecure_registries:
+                    - "registry-mirror:5000"
+                  username: "dockerhub_user"
+                  password: "dockerhub_password"
+                  email: "dockerhub_email@email.com"
+              inputs:
+                -
+                  name: "test_code_output"
+              run:
+                path: "sh"
+                args:
+                  - "-c"
+                  - "/scripts/notify"
+              params:
+                n0dejs_api_server_url: "https://192.168.1.3:3001/v2"
+                build_id: 3
+                event_type: "Testing"
+                event_result: "succeeded"
+                event_success_status: "succeeded"
+                event_failure_status: "failed"
+                uaa_endpoint_url: "https://api.uaa.endpoint.com:443"
+                service_account_client_id: "n0dejs-api-service"
+                service_account_client_secret: "client_secret"
+                event_exit_code: "env://test_code_output/exitcode"
+                event_start_time: "env://test_code_output/starttime"
+                event_end_time: "env://test_code_output/endtime"
+                event_log: "test_code_output/test_log.txt"
+            on_success:
+              aggregate:
+                -
+                  put: "hipchat_notifier_1"
+                  params:
+                    message: "Testing Succeeded, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    from: "N0deJS API"
+                    color: "green"
+                -
+                  put: "http_notifier_1"
+                  params:
+                    body: "{\"status\":\"Testing Succeeded\",\"commit\":{\"title\":\"FOR THE DEMO\",\"message\":\"FOR THE DEMO\",\"commitSha\":\"d8ee27e88db794d1cd8762be209f4c4103895a98\",\"commitUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"compareUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"timestamp\":\"2015-10-09T17:16:59Z\",\"author\":\"flacnut\",\"avatarUrl\":\"https://avatars.githubusercontent.com/u/2524397?v=3\",\"repo_branch\":\"master\",\"clone_url\":\"https://a_project_token@github.com/flacnut/node-docker-hello\"},\"build\":{\"id\":3},\"statusUri\":\"http://n0dejs.com/v2/pipelines/execution/3\"}"
+                -
+                  put: "flowdock_notifier_1"
+                  params:
+                    title: "FOR THE DEMO"
+                    body: "Testing Succeeded, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    author_name: "flacnut"
+                    thread_id: "n0dejs_build_notification_3_d8ee27e88db794d1cd8762be209f4c4103895a98"
+                    thread_title: "FOR THE DEMO"
+                    thread_body: "Testing Succeeded, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    thread_external_url: "http://n0dejs.com/v2/pipelines/execution/3"
+                    thread_status_color: "green"
+                -
+                  put: "slack_notifier_2"
+                  params:
+                    message: " "
+                    attachments:
+                      -
+                        fallback: "N0deJS API Status"
+                        color: "good"
+                        title: "Testing Succeeded"
+                        title_link: "http://n0dejs.com/v2/pipelines/execution/3"
+                        fields:
+                          -
+                            title: "Commit"
+                            value: "<https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98|FOR THE DEMO>"
+                            short: true
+                          -
+                            title: "Branch"
+                            value: "master"
+                            short: true
+                          -
+                            title: "Committer"
+                            value: "flacnut"
+                            short: true
+                          -
+                            title: "Project"
+                            value: "sample-app"
+                            short: true
+            on_failure:
+              aggregate:
+                -
+                  put: "hipchat_notifier_1"
+                  params:
+                    message: "Testing Failed, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    from: "N0deJS API"
+                    color: "red"
+                -
+                  put: "http_notifier_1"
+                  params:
+                    body: "{\"status\":\"Testing Failed\",\"commit\":{\"title\":\"FOR THE DEMO\",\"message\":\"FOR THE DEMO\",\"commitSha\":\"d8ee27e88db794d1cd8762be209f4c4103895a98\",\"commitUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"compareUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"timestamp\":\"2015-10-09T17:16:59Z\",\"author\":\"flacnut\",\"avatarUrl\":\"https://avatars.githubusercontent.com/u/2524397?v=3\",\"repo_branch\":\"master\",\"clone_url\":\"https://a_project_token@github.com/flacnut/node-docker-hello\"},\"build\":{\"id\":3},\"statusUri\":\"http://n0dejs.com/v2/pipelines/execution/3\"}"
+                -
+                  put: "flowdock_notifier_1"
+                  params:
+                    title: "FOR THE DEMO"
+                    body: "Testing Failed, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    author_name: "flacnut"
+                    thread_id: "n0dejs_build_notification_3_d8ee27e88db794d1cd8762be209f4c4103895a98"
+                    thread_title: "FOR THE DEMO"
+                    thread_body: "Testing Failed, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    thread_external_url: "http://n0dejs.com/v2/pipelines/execution/3"
+                    thread_status_color: "red"
+                -
+                  put: "slack_notifier_2"
+                  params:
+                    message: " "
+                    attachments:
+                      -
+                        fallback: "N0deJS API Status"
+                        color: "danger"
+                        title: "Testing Failed"
+                        title_link: "http://n0dejs.com/v2/pipelines/execution/3"
+                        fields:
+                          -
+                            title: "Commit"
+                            value: "<https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98|FOR THE DEMO>"
+                            short: true
+                          -
+                            title: "Branch"
+                            value: "master"
+                            short: true
+                          -
+                            title: "Committer"
+                            value: "flacnut"
+                            short: true
+                          -
+                            title: "Project"
+                            value: "sample-app"
+                            short: true
+        -
+          task: "create-build-event"
+          config:
+            platform: "linux"
+            image_resource:
+              name: "ignored"
+              type: "docker-image"
+              source:
+                repository: "registry-1.docker.io/foobar/n0dejs-build-event-notification-resource"
+                tag: "kosher-prod"
+                registry_mirror: "http://registry-mirror:5000"
+                insecure_registries:
+                  - "registry-mirror:5000"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            inputs: []
+            run:
+              path: "sh"
+              args:
+                - "-c"
+                - "/scripts/notify"
+            params:
+              n0dejs_api_server_url: "https://192.168.1.3:3001/v2"
+              build_id: 3
+              event_type: "Deploying Started"
+              event_result: "running"
+              event_success_status: "succeeded"
+              event_failure_status: "failed"
+              uaa_endpoint_url: "https://api.uaa.endpoint.com:443"
+              service_account_client_id: "n0dejs-api-service"
+              service_account_client_secret: "client_secret"
+          on_success:
+            aggregate:
+              -
+                put: "hipchat_notifier_1"
+                params:
+                  message: "Deploying Started, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                  from: "N0deJS API"
+                  color: "yellow"
+              -
+                put: "http_notifier_1"
+                params:
+                  body: "{\"status\":\"Deploying Started\",\"commit\":{\"title\":\"FOR THE DEMO\",\"message\":\"FOR THE DEMO\",\"commitSha\":\"d8ee27e88db794d1cd8762be209f4c4103895a98\",\"commitUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"compareUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"timestamp\":\"2015-10-09T17:16:59Z\",\"author\":\"flacnut\",\"avatarUrl\":\"https://avatars.githubusercontent.com/u/2524397?v=3\",\"repo_branch\":\"master\",\"clone_url\":\"https://a_project_token@github.com/flacnut/node-docker-hello\"},\"build\":{\"id\":3},\"statusUri\":\"http://n0dejs.com/v2/pipelines/execution/3\"}"
+              -
+                put: "flowdock_notifier_1"
+                params:
+                  title: "FOR THE DEMO"
+                  body: "Deploying Started, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                  author_name: "flacnut"
+                  thread_id: "n0dejs_build_notification_3_d8ee27e88db794d1cd8762be209f4c4103895a98"
+                  thread_title: "FOR THE DEMO"
+                  thread_body: "Deploying Started, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                  thread_external_url: "http://n0dejs.com/v2/pipelines/execution/3"
+                  thread_status_color: "yellow"
+              -
+                put: "slack_notifier_2"
+                params:
+                  message: " "
+                  attachments:
+                    -
+                      fallback: "N0deJS API Status"
+                      color: "#ffcc00"
+                      title: "Deploying Started"
+                      title_link: "http://n0dejs.com/v2/pipelines/execution/3"
+                      fields:
+                        -
+                          title: "Commit"
+                          value: "<https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98|FOR THE DEMO>"
+                          short: true
+                        -
+                          title: "Branch"
+                          value: "master"
+                          short: true
+                        -
+                          title: "Committer"
+                          value: "flacnut"
+                          short: true
+                        -
+                          title: "Project"
+                          value: "sample-app"
+                          short: true
+        -
+          task: "Deploying"
+          config:
+            platform: "linux"
+            n0dejs_logfile: "deploy_log.txt"
+            image_resource:
+              name: "ignored"
+              type: "docker-image"
+              source:
+                repository: "registry-1.docker.io/foobar/n0dejs-cloud-foundry-worker"
+                tag: "kosher-prod"
+                registry_mirror: "http://registry-mirror:5000"
+                insecure_registries:
+                  - "registry-mirror:5000"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            inputs:
+              -
+                name: "build_code_output"
+                path: "app"
+            outputs:
+              -
+                name: "deploy_output"
+            params:
+              cf_target_username: "foobar"
+              cf_target_password: "asldjlaksjd"
+              cf_target_organization: "DevEx"
+              cf_target_space: "N0deJSAPI"
+              skip_ssl_validation: true
+              manifest: "manifest.yml"
+              cf_user_provided_service_name: "api-n0dejs-sample-app"
+              n0dejs_api_url: "http://n0dejs.com/v2"
+              n0dejs_pipeline_id: 1
+              n0dejs_execution_id: 3
+              cf_application_path: "app/app"
+            run:
+              path: "sh"
+              args:
+                - "-c"
+                - "date -u +'%Y-%m-%dT%H:%M:%SZ'>deploy_output/starttime;(local rc=0; /scripts/cfdeploy >>deploy_output/deploy_log.txt 2>&1; rc=$?;/scripts/get_application_url $cf_application_path/$manifest $rc >>deploy_output/applicationurl; exit $rc);echo $? > deploy_output/exitcode;/scripts/get_additional_logs $cf_application_path/$manifest $(echo deploy_output/exitcode)>>deploy_output/deploy_log.txt 2>&1;cat deploy_output/deploy_log.txt;date -u +'%Y-%m-%dT%H:%M:%SZ'>deploy_output/endtime;"
+          ensure:
+            task: "create-build-event"
+            config:
+              platform: "linux"
+              image_resource:
+                name: "ignored"
+                type: "docker-image"
+                source:
+                  repository: "registry-1.docker.io/foobar/n0dejs-build-event-notification-resource"
+                  tag: "kosher-prod"
+                  registry_mirror: "http://registry-mirror:5000"
+                  insecure_registries:
+                    - "registry-mirror:5000"
+                  username: "dockerhub_user"
+                  password: "dockerhub_password"
+                  email: "dockerhub_email@email.com"
+              inputs:
+                -
+                  name: "deploy_output"
+              run:
+                path: "sh"
+                args:
+                  - "-c"
+                  - "/scripts/notify"
+              params:
+                n0dejs_api_server_url: "https://192.168.1.3:3001/v2"
+                build_id: 3
+                event_type: "Deploying"
+                event_result: "succeeded"
+                event_success_status: "succeeded"
+                event_failure_status: "failed"
+                uaa_endpoint_url: "https://api.uaa.endpoint.com:443"
+                service_account_client_id: "n0dejs-api-service"
+                service_account_client_secret: "client_secret"
+                application_url: "env://deploy_output/applicationurl"
+                event_exit_code: "env://deploy_output/exitcode"
+                event_start_time: "env://deploy_output/starttime"
+                event_end_time: "env://deploy_output/endtime"
+                event_log: "deploy_output/deploy_log.txt"
+            on_success:
+              aggregate:
+                -
+                  put: "hipchat_notifier_1"
+                  params:
+                    message: "Deploying Succeeded, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    from: "N0deJS API"
+                    color: "green"
+                -
+                  put: "http_notifier_1"
+                  params:
+                    body: "{\"status\":\"Deploying Succeeded\",\"commit\":{\"title\":\"FOR THE DEMO\",\"message\":\"FOR THE DEMO\",\"commitSha\":\"d8ee27e88db794d1cd8762be209f4c4103895a98\",\"commitUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"compareUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"timestamp\":\"2015-10-09T17:16:59Z\",\"author\":\"flacnut\",\"avatarUrl\":\"https://avatars.githubusercontent.com/u/2524397?v=3\",\"repo_branch\":\"master\",\"clone_url\":\"https://a_project_token@github.com/flacnut/node-docker-hello\"},\"build\":{\"id\":3},\"statusUri\":\"http://n0dejs.com/v2/pipelines/execution/3\"}"
+                -
+                  put: "flowdock_notifier_1"
+                  params:
+                    title: "FOR THE DEMO"
+                    body: "Deploying Succeeded, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    author_name: "flacnut"
+                    thread_id: "n0dejs_build_notification_3_d8ee27e88db794d1cd8762be209f4c4103895a98"
+                    thread_title: "FOR THE DEMO"
+                    thread_body: "Deploying Succeeded, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    thread_external_url: "http://n0dejs.com/v2/pipelines/execution/3"
+                    thread_status_color: "green"
+                -
+                  put: "slack_notifier_2"
+                  params:
+                    message: " "
+                    attachments:
+                      -
+                        fallback: "N0deJS API Status"
+                        color: "good"
+                        title: "Deploying Succeeded"
+                        title_link: "http://n0dejs.com/v2/pipelines/execution/3"
+                        fields:
+                          -
+                            title: "Commit"
+                            value: "<https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98|FOR THE DEMO>"
+                            short: true
+                          -
+                            title: "Branch"
+                            value: "master"
+                            short: true
+                          -
+                            title: "Committer"
+                            value: "flacnut"
+                            short: true
+                          -
+                            title: "Project"
+                            value: "sample-app"
+                            short: true
+            on_failure:
+              aggregate:
+                -
+                  put: "hipchat_notifier_1"
+                  params:
+                    message: "Deploying Failed, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    from: "N0deJS API"
+                    color: "red"
+                -
+                  put: "http_notifier_1"
+                  params:
+                    body: "{\"status\":\"Deploying Failed\",\"commit\":{\"title\":\"FOR THE DEMO\",\"message\":\"FOR THE DEMO\",\"commitSha\":\"d8ee27e88db794d1cd8762be209f4c4103895a98\",\"commitUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"compareUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"timestamp\":\"2015-10-09T17:16:59Z\",\"author\":\"flacnut\",\"avatarUrl\":\"https://avatars.githubusercontent.com/u/2524397?v=3\",\"repo_branch\":\"master\",\"clone_url\":\"https://a_project_token@github.com/flacnut/node-docker-hello\"},\"build\":{\"id\":3},\"statusUri\":\"http://n0dejs.com/v2/pipelines/execution/3\"}"
+                -
+                  put: "flowdock_notifier_1"
+                  params:
+                    title: "FOR THE DEMO"
+                    body: "Deploying Failed, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    author_name: "flacnut"
+                    thread_id: "n0dejs_build_notification_3_d8ee27e88db794d1cd8762be209f4c4103895a98"
+                    thread_title: "FOR THE DEMO"
+                    thread_body: "Deploying Failed, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                    thread_external_url: "http://n0dejs.com/v2/pipelines/execution/3"
+                    thread_status_color: "red"
+                -
+                  put: "slack_notifier_2"
+                  params:
+                    message: " "
+                    attachments:
+                      -
+                        fallback: "N0deJS API Status"
+                        color: "danger"
+                        title: "Deploying Failed"
+                        title_link: "http://n0dejs.com/v2/pipelines/execution/3"
+                        fields:
+                          -
+                            title: "Commit"
+                            value: "<https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98|FOR THE DEMO>"
+                            short: true
+                          -
+                            title: "Branch"
+                            value: "master"
+                            short: true
+                          -
+                            title: "Committer"
+                            value: "flacnut"
+                            short: true
+                          -
+                            title: "Project"
+                            value: "sample-app"
+                            short: true
+        -
+          task: "create-build-event"
+          config:
+            platform: "linux"
+            image_resource:
+              name: "ignored"
+              type: "docker-image"
+              source:
+                repository: "registry-1.docker.io/foobar/n0dejs-build-event-notification-resource"
+                tag: "kosher-prod"
+                registry_mirror: "http://registry-mirror:5000"
+                insecure_registries:
+                  - "registry-mirror:5000"
+                username: "dockerhub_user"
+                password: "dockerhub_password"
+                email: "dockerhub_email@email.com"
+            inputs: []
+            run:
+              path: "sh"
+              args:
+                - "-c"
+                - "/scripts/notify"
+            params:
+              n0dejs_api_server_url: "https://192.168.1.3:3001/v2"
+              build_id: 3
+              event_type: "Pipeline Completed"
+              event_result: "succeeded"
+              event_success_status: "succeeded"
+              event_failure_status: "failed"
+              uaa_endpoint_url: "https://api.uaa.endpoint.com:443"
+              service_account_client_id: "n0dejs-api-service"
+              service_account_client_secret: "client_secret"
+          ensure:
+            aggregate:
+              -
+                put: "hipchat_notifier_1"
+                params:
+                  message: "Pipeline Completed, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                  from: "N0deJS API"
+                  color: "green"
+              -
+                put: "http_notifier_1"
+                params:
+                  body: "{\"status\":\"Pipeline Completed\",\"commit\":{\"title\":\"FOR THE DEMO\",\"message\":\"FOR THE DEMO\",\"commitSha\":\"d8ee27e88db794d1cd8762be209f4c4103895a98\",\"commitUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"compareUrl\":\"https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98\",\"timestamp\":\"2015-10-09T17:16:59Z\",\"author\":\"flacnut\",\"avatarUrl\":\"https://avatars.githubusercontent.com/u/2524397?v=3\",\"repo_branch\":\"master\",\"clone_url\":\"https://a_project_token@github.com/flacnut/node-docker-hello\"},\"build\":{\"id\":3},\"statusUri\":\"http://n0dejs.com/v2/pipelines/execution/3\"}"
+              -
+                put: "flowdock_notifier_1"
+                params:
+                  title: "FOR THE DEMO"
+                  body: "Pipeline Completed, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                  author_name: "flacnut"
+                  thread_id: "n0dejs_build_notification_3_d8ee27e88db794d1cd8762be209f4c4103895a98"
+                  thread_title: "FOR THE DEMO"
+                  thread_body: "Pipeline Completed, Project: sample-app. Commit: <a href='https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98'>FOR THE DEMO</a>. Trigger: manual"
+                  thread_external_url: "http://n0dejs.com/v2/pipelines/execution/3"
+                  thread_status_color: "green"
+              -
+                put: "slack_notifier_2"
+                params:
+                  message: " "
+                  attachments:
+                    -
+                      fallback: "N0deJS API Status"
+                      color: "#ffcc00"
+                      title: "Pipeline Completed"
+                      title_link: "http://n0dejs.com/v2/pipelines/execution/3"
+                      fields:
+                        -
+                          title: "Commit"
+                          value: "<https://github.com/flacnut/docker-node-hello/commit/d8ee27e88db794d1cd8762be209f4c4103895a98|FOR THE DEMO>"
+                          short: true
+                        -
+                          title: "Branch"
+                          value: "master"
+                          short: true
+                        -
+                          title: "Committer"
+                          value: "flacnut"
+                          short: true
+                        -
+                          title: "Project"
+                          value: "sample-app"
+                          short: true
+      max_in_flight: 1

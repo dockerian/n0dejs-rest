@@ -1,0 +1,11 @@
+exports.buildcontainer = require('./buildcontainer.js');
+exports.credential = require('./credential.js');
+exports.credentialtype = require('./credentialType.js');
+exports.deployment = require('./deployment.js');
+exports.deploymentTarget = require('./deploymentTarget.js');
+exports.image = require('./image.js');
+exports.image_registry = require('./imageRegistry.js');
+exports.project = require('./project.js');
+exports.user = require('./user.js');
+exports.vcs = require('./vcs.js');
+exports.vcstype = require('./vcsType.js');

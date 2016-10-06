@@ -1,0 +1,82 @@
+{
+  "name": "n0dejs-api",
+  "description": "N0deJS API service",
+  "version": "1.0.0",
+  "dependencies": {
+    "async": "2.0.0-rc.3",
+    "body-parser": "1.15.0",
+    "express": "4.13.4",
+    "express-jwt": "3.4.0",
+    "express-jwt-permissions": "^0.2.2",
+    "github": "2.4.0",
+    "http-status-codes": "1.0.6",
+    "json2yaml": "1.1.0",
+    "lodash": "4.11.1",
+    "morgan": "1.7.0",
+    "multiparty": "4.1.2",
+    "mysql": "2.10.2",
+    "orm": "2.1.30",
+    "q": "1.4.1",
+    "request": "2.73.0",
+    "semver": "5.1.0",
+    "shelljs": "0.6.0",
+    "uuid": "2.0.2",
+    "winston": "2.2.0",
+    "winston-circular-buffer": "1.0.0"
+  },
+  "devDependencies": {
+    "eslint": "2.8.0",
+    "gulp": "3.9.1",
+    "gulp-eslint": "2.0.0",
+    "gulp-filter": "4.0.0",
+    "gulp-header": "1.7.1",
+    "gulp-jsbeautifier": "2.0.3",
+    "gulp-mocha": "2.2.0",
+    "gulp-replace": "0.5.4",
+    "gulp-util": "3.0.7",
+    "istanbul": "0.4.3",
+    "js-beautify": "1.6.2",
+    "mocha": "2.4.5",
+    "npm-dependencies-spreadsheet": "0.0.5",
+    "q": "1.4.1",
+    "randomstring": "1.1.4",
+    "rewire": "2.5.1",
+    "should": "8.3.1",
+    "sinon": "1.17.3",
+    "tcp-proxy": "0.0.1",
+    "yargs": "4.6.0"
+  },
+  "scripts": {
+    "build": "make build",
+    "start": "make start",
+    "pretest": "make pretest",
+    "posttest": "make posttest",
+    "test": "make test",
+    "test-only": "make test-only",
+    "jsdoc": "make jsdoc",
+    "watch": "make watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:dockerian/n0dejs-api.git"
+  },
+  "config": {
+    "database": {
+      "version": "0.0.2"
+    },
+    "blanket": {
+      "pattern": "app",
+      "data-cover-never": "node_modules"
+    }
+  },
+  "bugs": {
+    "url": "https://github.com/dockerian/n0dejs-api/issues"
+  },
+  "homepage": "https://github.com/dockerian/n0dejs-api",
+  "main": "server.js",
+  "directories": {
+    "test": "test"
+  },
+  "author": "Dockerian",
+  "license": "MyOrg"
+}

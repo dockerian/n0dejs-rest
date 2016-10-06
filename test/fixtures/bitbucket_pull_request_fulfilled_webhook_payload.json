@@ -1,0 +1,174 @@
+{
+  "pullrequest": {
+    "destination": {
+      "commit": {
+        "hash": "05dbc5a42319",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/repositories/bbfoobar/gitstats/commit/05dbc5a42319"
+          }
+        }
+      },
+      "repository": {
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/repositories/bbfoobar/gitstats"
+          },
+          "html": {
+            "href": "https://bitbucket.org/bbuser/gitstats"
+          },
+          "avatar": {
+            "href": "https://bitbucket.org/bbuser/gitstats/avatar/32/"
+          }
+        },
+        "type": "repository",
+        "name": "gitstats",
+        "full_name": "bbfoobar/gitstats",
+        "uuid": "{436471e7-2cad-4f11-b2e4-8e0a9880a10c}"
+      },
+      "branch": {
+        "name": "master"
+      }
+    },
+    "type": "pullrequest",
+    "description": "package.json edited online with Bitbucket",
+    "links": {
+      "self": {
+        "href": "https://api.bitbucket.org/2.0/repositories/bbfoobar/gitstats/pullrequests/3"
+      },
+      "html": {
+        "href": "https://bitbucket.org/bbuser/gitstats/pull-requests/3"
+      }
+    },
+    "title": "package.json edited online with Bitbucket",
+    "close_source_branch": false,
+    "reviewers": [],
+    "author": {
+      "username": "bbuser",
+      "display_name": "BB Foobar",
+      "type": "user",
+      "uuid": "{7c6e1a6f-67e2-4fa3-8fbf-c2c6dbc4a8fa}",
+      "links": {
+        "self": {
+          "href": "https://api.bitbucket.org/2.0/users/bbuser"
+        },
+        "html": {
+          "href": "https://bitbucket.org/bbuser/"
+        },
+        "avatar": {
+          "href": "https://bitbucket.org/account/bbuser/avatar/32/"
+        }
+      }
+    },
+    "comment_count": 0,
+    "closed_by": {
+      "username": "bbuser",
+      "display_name": "BB Foobar",
+      "type": "user",
+      "uuid": "{7c6e1a6f-67e2-4fa3-8fbf-c2c6dbc4a8fa}",
+      "links": {
+        "self": {
+          "href": "https://api.bitbucket.org/2.0/users/bbuser"
+        },
+        "html": {
+          "href": "https://bitbucket.org/bbuser/"
+        },
+        "avatar": {
+          "href": "https://bitbucket.org/account/bbuser/avatar/32/"
+        }
+      }
+    },
+    "source": {
+      "commit": {
+        "hash": "9405c8de9d95",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/repositories/bbfoobar/gitstats/commit/9405c8de9d95"
+          }
+        }
+      },
+      "repository": {
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/repositories/bbfoobar/gitstats"
+          },
+          "html": {
+            "href": "https://bitbucket.org/bbuser/gitstats"
+          },
+          "avatar": {
+            "href": "https://bitbucket.org/bbuser/gitstats/avatar/32/"
+          }
+        },
+        "type": "repository",
+        "name": "gitstats",
+        "full_name": "bbfoobar/gitstats",
+        "uuid": "{436471e7-2cad-4f11-b2e4-8e0a9880a10c}"
+      },
+      "branch": {
+        "name": "bbuser/packagejsonchange"
+      }
+    },
+    "state": "DECLINED",
+    "task_count": 0,
+    "created_on": "2016-05-25T15:43:43.397072+00:00",
+    "participants": [],
+    "reason": "",
+    "updated_on": "2016-05-25T19:40:13.437102+00:00",
+    "merge_commit": null,
+    "id": 3
+  },
+  "actor": {
+    "username": "bbuser",
+    "display_name": "BB Foobar",
+    "type": "user",
+    "uuid": "{7c6e1a6f-67e2-4fa3-8fbf-c2c6dbc4a8fa}",
+    "links": {
+      "self": {
+        "href": "https://api.bitbucket.org/2.0/users/bbuser"
+      },
+      "html": {
+        "href": "https://bitbucket.org/bbuser/"
+      },
+      "avatar": {
+        "href": "https://bitbucket.org/account/bbuser/avatar/32/"
+      }
+    }
+  },
+  "repository": {
+    "website": "",
+    "scm": "git",
+    "name": "gitstats",
+    "links": {
+      "self": {
+        "href": "https://api.bitbucket.org/2.0/repositories/bbfoobar/gitstats"
+      },
+      "html": {
+        "href": "https://bitbucket.org/bbuser/gitstats"
+      },
+      "avatar": {
+        "href": "https://bitbucket.org/bbuser/gitstats/avatar/32/"
+      }
+    },
+    "full_name": "bbfoobar/gitstats",
+    "owner": {
+      "username": "bbfoobar",
+      "display_name": "Foo Bar",
+      "type": "user",
+      "uuid": "{be7bba91-7549-45b7-adab-a3aeecedbabe}",
+      "links": {
+        "self": {
+          "href": "https://api.bitbucket.org/2.0/users/bbfoobar"
+        },
+        "html": {
+          "href": "https://bitbucket.org/bbuser/"
+        },
+        "avatar": {
+          "href": "https://bitbucket.org/account/bbfoobar/avatar/32/"
+        }
+      }
+    },
+    "type": "repository",
+    "is_private": true,
+    "uuid": "{436471e7-2cad-4f11-b2e4-8e0a9880a10c}"
+  }
+}

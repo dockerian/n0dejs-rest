@@ -1,0 +1,287 @@
+{
+  "push": {
+    "changes": [
+      {
+        "forced": false,
+        "old": {
+          "repository": {
+            "links": {
+              "self": {
+                "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats"
+              },
+              "html": {
+                "href": "https://bitbucket.org/bbuser/gitstats"
+              },
+              "avatar": {
+                "href": "https://bitbucket.org/bbuser/gitstats/avatar/32/"
+              }
+            },
+            "type": "repository",
+            "name": "gitstats",
+            "full_name": "foobar/gitstats",
+            "uuid": "{436471e7-2cad-4f11-b2e4-8e0a9880a10c}"
+          },
+          "type": "branch",
+          "name": "master",
+          "links": {
+            "commits": {
+              "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats/commits/master"
+            },
+            "self": {
+              "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats/refs/branches/master"
+            },
+            "html": {
+              "href": "https://bitbucket.org/bbuser/gitstats/branch/master"
+            }
+          },
+          "target": {
+            "hash": "a7333b6ddbeb89c44db64041f1c856acd32acd87",
+            "links": {
+              "self": {
+                "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats/commit/a7333b6ddbeb89c44db64041f1c856acd32acd87"
+              },
+              "html": {
+                "href": "https://bitbucket.org/bbuser/gitstats/commits/a7333b6ddbeb89c44db64041f1c856acd32acd87"
+              }
+            },
+            "author": {
+              "raw": "Foo Bar <foobar@gmail.com>",
+              "user": {
+                "username": "foobar",
+                "display_name": "Foo Bar",
+                "type": "user",
+                "uuid": "{be7bba91-7549-45b7-adab-a3aeecedbabe}",
+                "links": {
+                  "self": {
+                    "href": "https://api.bitbucket.org/2.0/users/foobar"
+                  },
+                  "html": {
+                    "href": "https://bitbucket.org/bbuser/"
+                  },
+                  "avatar": {
+                    "href": "https://bitbucket.org/account/foobar/avatar/32/"
+                  }
+                }
+              }
+            },
+            "parents": [
+              {
+                "hash": "1e78ecee9224c233ac50653f8cda767c4df00f22",
+                "type": "commit",
+                "links": {
+                  "self": {
+                    "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats/commit/1e78ecee9224c233ac50653f8cda767c4df00f22"
+                  },
+                  "html": {
+                    "href": "https://bitbucket.org/bbuser/gitstats/commits/1e78ecee9224c233ac50653f8cda767c4df00f22"
+                  }
+                }
+              }
+            ],
+            "date": "2016-05-24T18:33:18+00:00",
+            "message": ".gitignore edited online with Bitbucket",
+            "type": "commit"
+          }
+        },
+        "links": {
+          "commits": {
+            "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats/commits?include=6aacb1c5c8a575d7c8f81d1b8e17523e68a86a76&exclude=a7333b6ddbeb89c44db64041f1c856acd32acd87"
+          },
+          "html": {
+            "href": "https://bitbucket.org/bbuser/gitstats/branches/compare/6aacb1c5c8a575d7c8f81d1b8e17523e68a86a76..a7333b6ddbeb89c44db64041f1c856acd32acd87"
+          },
+          "diff": {
+            "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats/diff/6aacb1c5c8a575d7c8f81d1b8e17523e68a86a76..a7333b6ddbeb89c44db64041f1c856acd32acd87"
+          }
+        },
+        "truncated": false,
+        "commits": [
+          {
+            "hash": "6aacb1c5c8a575d7c8f81d1b8e17523e68a86a76",
+            "links": {
+              "self": {
+                "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats/commit/6aacb1c5c8a575d7c8f81d1b8e17523e68a86a76"
+              },
+              "html": {
+                "href": "https://bitbucket.org/bbuser/gitstats/commits/6aacb1c5c8a575d7c8f81d1b8e17523e68a86a76"
+              }
+            },
+            "author": {
+              "raw": "Foo Bar <foobar@gmail.com>",
+              "user": {
+                "username": "foobar",
+                "display_name": "Foo Bar",
+                "type": "user",
+                "uuid": "{be7bba91-7549-45b7-adab-a3aeecedbabe}",
+                "links": {
+                  "self": {
+                    "href": "https://api.bitbucket.org/2.0/users/foobar"
+                  },
+                  "html": {
+                    "href": "https://bitbucket.org/bbuser/"
+                  },
+                  "avatar": {
+                    "href": "https://bitbucket.org/account/foobar/avatar/32/"
+                  }
+                }
+              }
+            },
+            "parents": [
+              {
+                "hash": "a7333b6ddbeb89c44db64041f1c856acd32acd87",
+                "type": "commit",
+                "links": {
+                  "self": {
+                    "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats/commit/a7333b6ddbeb89c44db64041f1c856acd32acd87"
+                  },
+                  "html": {
+                    "href": "https://bitbucket.org/bbuser/gitstats/commits/a7333b6ddbeb89c44db64041f1c856acd32acd87"
+                  }
+                }
+              }
+            ],
+            "date": "2016-05-24T19:44:34+00:00",
+            "message": "Ignore *debug.log files.",
+            "type": "commit"
+          }
+        ],
+        "created": false,
+        "closed": false,
+        "new": {
+          "repository": {
+            "links": {
+              "self": {
+                "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats"
+              },
+              "html": {
+                "href": "https://bitbucket.org/bbuser/gitstats"
+              },
+              "avatar": {
+                "href": "https://bitbucket.org/bbuser/gitstats/avatar/32/"
+              }
+            },
+            "type": "repository",
+            "name": "gitstats",
+            "full_name": "foobar/gitstats",
+            "uuid": "{436471e7-2cad-4f11-b2e4-8e0a9880a10c}"
+          },
+          "type": "branch",
+          "name": "master",
+          "links": {
+            "commits": {
+              "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats/commits/master"
+            },
+            "self": {
+              "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats/refs/branches/master"
+            },
+            "html": {
+              "href": "https://bitbucket.org/bbuser/gitstats/branch/master"
+            }
+          },
+          "target": {
+            "hash": "6aacb1c5c8a575d7c8f81d1b8e17523e68a86a76",
+            "links": {
+              "self": {
+                "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats/commit/6aacb1c5c8a575d7c8f81d1b8e17523e68a86a76"
+              },
+              "html": {
+                "href": "https://bitbucket.org/bbuser/gitstats/commits/6aacb1c5c8a575d7c8f81d1b8e17523e68a86a76"
+              }
+            },
+            "author": {
+              "raw": "Foo Bar <foobar@gmail.com>",
+              "user": {
+                "username": "foobar",
+                "display_name": "Foo Bar",
+                "type": "user",
+                "uuid": "{be7bba91-7549-45b7-adab-a3aeecedbabe}",
+                "links": {
+                  "self": {
+                    "href": "https://api.bitbucket.org/2.0/users/foobar"
+                  },
+                  "html": {
+                    "href": "https://bitbucket.org/bbuser/"
+                  },
+                  "avatar": {
+                    "href": "https://bitbucket.org/account/foobar/avatar/32/"
+                  }
+                }
+              }
+            },
+            "parents": [
+              {
+                "hash": "a7333b6ddbeb89c44db64041f1c856acd32acd87",
+                "type": "commit",
+                "links": {
+                  "self": {
+                    "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats/commit/a7333b6ddbeb89c44db64041f1c856acd32acd87"
+                  },
+                  "html": {
+                    "href": "https://bitbucket.org/bbuser/gitstats/commits/a7333b6ddbeb89c44db64041f1c856acd32acd87"
+                  }
+                }
+              }
+            ],
+            "date": "2016-05-24T19:44:34+00:00",
+            "message": "Ignore *debug.log files.",
+            "type": "commit"
+          }
+        }
+      }
+    ]
+  },
+  "actor": {
+    "username": "foobar",
+    "display_name": "Foo Bar",
+    "type": "user",
+    "uuid": "{be7bba91-7549-45b7-adab-a3aeecedbabe}",
+    "links": {
+      "self": {
+        "href": "https://api.bitbucket.org/2.0/users/foobar"
+      },
+      "html": {
+        "href": "https://bitbucket.org/bbuser/"
+      },
+      "avatar": {
+        "href": "https://bitbucket.org/account/foobar/avatar/32/"
+      }
+    }
+  },
+  "repository": {
+    "website": "",
+    "scm": "git",
+    "name": "gitstats",
+    "links": {
+      "self": {
+        "href": "https://api.bitbucket.org/2.0/repositories/foobar/gitstats"
+      },
+      "html": {
+        "href": "https://bitbucket.org/bbuser/gitstats"
+      },
+      "avatar": {
+        "href": "https://bitbucket.org/bbuser/gitstats/avatar/32/"
+      }
+    },
+    "full_name": "foobar/gitstats",
+    "owner": {
+      "username": "foobar",
+      "display_name": "Foo Bar",
+      "type": "user",
+      "uuid": "{be7bba91-7549-45b7-adab-a3aeecedbabe}",
+      "links": {
+        "self": {
+          "href": "https://api.bitbucket.org/2.0/users/foobar"
+        },
+        "html": {
+          "href": "https://bitbucket.org/bbuser/"
+        },
+        "avatar": {
+          "href": "https://bitbucket.org/account/foobar/avatar/32/"
+        }
+      }
+    },
+    "type": "repository",
+    "is_private": true,
+    "uuid": "{436471e7-2cad-4f11-b2e4-8e0a9880a10c}"
+  }
+}

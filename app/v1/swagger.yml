@@ -1,0 +1,1116 @@
+# swagger.yml - Primary swagger YAML file for N0deJS REST API
+
+
+swagger: '2.0'
+
+# Document metadata
+info:
+  version: '1.0.0'
+  title: N0deJS API
+  description: N0deJS REST API prototype
+
+
+schemes:
+  - http
+host: localhost:3001
+basePath: /v1
+
+
+##########################################################################
+#                                                                        #
+#                               PATHS                                    #
+#                                                                        #
+##########################################################################
+paths:
+
+
+  '/deployments/{deploymentId}':
+    get:
+      summary: Get a deployment with deployment id specified in the request.
+      description: |
+        Get a deployment with deployment id specified in the request.
+        If there is no deployment, returns 404.
+      operationId: getDeployment
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed?
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: deploymentId
+          in: path
+          description: The deployment id to find and return deployment.
+          required: true
+          type: integer
+          format: int32
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response with a deployments.
+          # A schema describing the response object.
+          schema:
+            $ref: '#/definitions/deployment'
+
+    delete:
+      summary: Delete the deployment specified in the request.
+      description: |
+        Delete the deployment specified in the request.
+        If there is no deployment, returns 404.
+      operationId: deleteDeployment
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed?
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: deploymentId
+          in: path
+          description: The deployment id to find and return deployment.
+          required: true
+          type: integer
+          format: int32
+      # Expected responses for this operation:
+      responses:
+          # Response code
+          404:
+            description: Deployment with specified id is not found.
+          # Response code
+          204:
+            description: Deployment Succefully deleted.
+
+
+  '/projects/members/':
+    post:
+      summary: Add an existing user as a member to an existing project.
+      description: |
+        Add an existing user as a member to an existing project.
+        If user is already existing, return 409 (CONFLICT);
+        Otherwise, add user as a member and return 201 (CREATED).
+      operationId: addUserAsMember
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed?
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: user
+          in: body
+          description: The user JSON to post.
+          schema:
+            $ref: '#/definitions/user'
+          required: true
+
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        201:
+          description: Successful response with adding user as a member.
+        # Response code
+        409:
+          description: User is already a member.
+
+
+  '/projects/{projectId}/':
+
+    get:
+      summary: Get the project specified by `projectId`.
+      description: |
+        Get the project specified in the request. If the
+        item is not found, return a `404`.
+      operationId: getProject
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed.
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: projectId
+          in: path
+          description: The id of the project to get.
+          required: true
+          type: integer
+          format: int32
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response with a `project` object
+          schema:
+            $ref: '#/definitions/project'
+        # Response code
+        404:
+          description: The specified project is not found.
+
+    put:
+      summary: Update the project specified by `projectId`.
+      description: |
+        Update the specified project and return the updated project object.
+      operationId: updateProject
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: projectId
+          in: path
+          description: The id of the project.
+          required: true
+          type: integer
+          format: int32
+
+        - name: project
+          required: true
+          in: body
+          description: The project object.
+          schema:
+            $ref: '#/definitions/project'
+
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: The updated project.
+          schema:
+            $ref: '#/definitions/project'
+        # Response code
+        default:
+          description: Failed to update the project.
+          schema:
+            $ref: '#/definitions/error'
+
+    delete:
+      summary: Delete the project specified by `projectId`.
+      description: |
+        Delete the project referenced in the request.
+        If the project is not found, return `404`.
+      operationId: deleteProject
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed.
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: projectId
+          in: path
+          description: The id of the project to delete.
+          required: true
+          type: integer
+          format: int32
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        204:
+          description: Successfully deleted.
+        # Response code
+        404:
+          description: When environment with specified id is not found or there are projects using it.
+        default:
+          description: Unexpected error.
+
+
+  '/projects/{projectId}/deployments':
+    get:
+      summary: Get the set of deployments associated with the project specified in the request.
+      description: |
+        Get the set of deployments associated with the project specified in the request.
+        If there are no deployments, returns an empty list.
+      operationId: getDeploymentsForProject
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed?
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: projectId
+          in: path
+          description: The project id to list deployments for.
+          required: true
+          type: integer
+          format: int32
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response with a listing of deployments.
+          # A schema describing the response object.
+          schema:
+            $ref: '#/definitions/deployments'
+
+    post:
+      summary: Create a deployment for a project.
+      description: |
+        Creates a new deployment for the specified project and return 201.
+        If failed to create returns 404.
+      operationId: createDeployment
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed?
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: projectId
+          in: path
+          description: The project id to create post deployment actions for.
+          required: true
+          type: integer
+          format: int32
+
+        - name: deployment
+          in: body
+          description: The deployment JSON to post.
+          schema:
+            $ref: '#/definitions/deployment'
+          required: true
+
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        201:
+          description: Successful response with details of the newly created post deployment.
+          # A schema describing the response object.
+          schema:
+            $ref: '#/definitions/deployment'
+
+
+  '/projects/{projectId}/members/':
+    get:
+      summary: Get the set of members associated with the project specified in the request.
+      description: |
+        Get the set of members associated with the project specified in the request.
+        If there are no members, returns an empty list.
+      operationId: getMembers
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed?
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: projectId
+          in: path
+          description: The project id to list members for.
+          required: true
+          type: integer
+          format: int32
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response with a listing of members.
+          # A schema describing the response object.
+          schema:
+            $ref: '#/definitions/members'
+
+
+  '/targets/{targetId}/':
+    # This is a HTTP operation
+    get:
+      summary: Get the deployment environment/target specified by `targetId`.
+      description: |
+        Get the deployment environment/target specified in the request. If the
+        item is not found, return a `404/NOT_FOUND`.
+      operationId: getEnvironment
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed.
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: targetId
+          in: path
+          description: The internal target id.
+          required: true
+          type: integer
+          format: int32
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response with a target/environment object
+          # A schema describing your response object.
+          schema:
+            $ref: '#/definitions/target'
+        # Response code
+        404:
+          description: The specified target/environment is not found.
+
+    put:
+      summary: Update the deployment environment specified by `targetId`.
+      description: |
+        Update the specified deployment environment and return the updated environment.
+      operationId: updateEnvironment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: targetId
+          in: path
+          description: The id of the environment.
+          required: true
+          type: integer
+          format: int32
+
+        - name: target
+          required: true
+          in: body
+          description: The target object.
+          schema:
+            $ref: '#/definitions/target'
+
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: The updated target.
+          schema:
+            $ref: '#/definitions/target'
+        # Response code
+        default:
+          description: Failed to update a target.
+          schema:
+            $ref: '#/definitions/error'
+
+    # This is a HTTP operation
+    delete:
+      summary: Delete the deployment environment/target specified by `targetId`.
+      description: |
+        Delete the deployment environment/target referenced in the request and return 204.
+        If the target is not found, returns `404`.
+      operationId: deleteEnvironment
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed.
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: targetId
+          in: path
+          description: The environment id we want to delete.
+          required: true
+          type: integer
+          format: int32
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        500:
+          description: When environment with specified id is not found or there are projects using it.
+        # Response code
+        204:
+          description: Successfully deleted.
+
+
+  '/targets/{targetId}/projects/':
+    # This is a HTTP operation
+    get:
+      summary: Get the projects associated with the environment specified by `targetId`.
+      description: |
+        Get the set of projects associated with the deployment environment
+        specified in the request. If there are no matching projects, return a 200/OK
+        and an empty set.
+      operationId: getProjectsForEnvironment
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed.
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: targetId
+          in: path
+          description: The internal target id.
+          required: true
+          type: integer
+          format: int32
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response with a list of projects or empty list if there is no projects targeting the target/environment.
+          # A schema describing your response object.
+
+          schema:
+            $ref: '#/definitions/projects'
+
+        404:
+          description: No environment matching `targetId`.
+
+        default:
+          description: Unexpected error.
+
+
+  # This is the path endpoint, with a variable sub
+  '/user/github/{userId}/':
+    # This is a HTTP operation
+    get:
+      summary: Returns the GitHub user with the specified ID.
+      description: |
+        Returns the GitHub user with the specified ID. If there are no matching user, return a 404 not found.
+      operationId: getGitHubUser
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed.
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: userId
+          in: path
+          description: |
+            The GitHub user id.
+          required: true
+          type: string
+          format: int32
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response with a github user object.
+          # A schema describing your response object.
+
+          schema:
+            $ref: '#/definitions/user'
+        # Response code
+        404:
+          description: GitHub user not found.
+
+
+  # This is the path endpoint, with a variable sub
+  '/users':
+    # This is a HTTP operation
+    post:
+      summary: Create a N0deJSAPI user with the details specified in the request body.
+      description: |
+        Create a N0deJSAPI user with the details specified in the request body and return 201.
+        If failed to create returns 500.
+      operationId: createUser
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      # Returns :
+      parameters:
+       - name: user
+         in: body
+         description: The user JSON to post.
+         schema:
+           $ref: '#/definitions/user'
+         required: true
+
+      # Expected responses for this operation:
+      responses:
+        # Response code FIXME: does this return an object
+        201:
+          description: Creates a new user.
+          # A schema describing your response object.
+
+          schema:
+            $ref: '#/definitions/user'
+
+       # Response code
+        500:
+          description: Failed to creates a new user.
+
+
+  # This is the path endpoint, with a variable sub
+  '/users/{userId}/':
+    # This is a HTTP operation
+    get:
+      summary: Returns the N0deJSAPI user with the specified ID.
+      description: |
+        Returns the N0deJSAPI user with the specified ID. If there are no matching user, return a 404 not found.
+      operationId: getUser
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed.
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: userId
+          in: path
+          description: The user id.
+          required: true
+          type: integer
+          format: int32
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response with a user object.
+          # A schema describing your response object.
+
+          schema:
+            $ref: '#/definitions/user'
+        # Response code
+        404:
+          description: user not found.
+
+    # This is a HTTP operation
+    put:
+      summary: Updates a user definition.
+      description: |
+        Updates a user definition and returns 200. If failed to update returns 500.
+      operationId: updateUser
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      # Returns :
+      parameters:
+        - name: userId
+          in: path
+          description: The user id to update user definition for.
+          required: true
+          type: integer
+          format: int32
+
+        - name: user
+          in: body
+          description: The user JSON to post.
+          schema:
+           $ref: '#/definitions/user'
+          required: true
+
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Updates a user.
+          # A schema describing your response object.
+
+          schema:
+            $ref: '#/definitions/user'
+
+        # Response code
+        500:
+          description: Failed to update a user.
+
+    delete:
+      summary: Delete the N0deJSAPI user with the specified ID.
+      description: |
+        Delete the N0deJSAPI user with the specified ID.
+        If user with specified id not found, returns 404.
+      operationId: deleteUser
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed.
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: userId
+          in: path
+          description: Id for ci/cd user we want to delete.
+          required: true
+          type: integer
+          format: int32
+      # Expected responses for this operation:
+      responses:
+          # Response code
+          404:
+            description: User with specified id is not found.
+          # Response code
+          204:
+            description: Succefully deleted.
+
+
+  '/users/{userId}/projects/': # Note: The trailing slash is necessary (at least in this case)
+    get:
+      summary: Get the projects owned by the user.
+      description: |
+        Get the list of projects that the specified user is an owner of.
+        If there are no such projects, return an empty list.
+      operationId: getProjectsForUser
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed?
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: userId
+          in: path
+          description: The user id to list projects for.
+          required: true
+          type: integer
+          format: int32
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response with a listing of user projects.
+          # A schema describing the response object.
+          schema:
+            $ref: '#/definitions/projects'
+
+    post:
+      summary: Create a new project
+      description: |
+        Create a new project for the specified user using the values in the payload.
+      operationId: createProject
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed?
+      produces:
+        - application/json
+      # This is array of GET operation parameters:
+      parameters:
+        - name: userId
+          in: path
+          description: The user id to create the project for.
+          required: true
+          type: integer
+          format: int32
+
+        - name: project
+          in: body
+          description: The project JSON to post.
+          schema:
+            $ref: '#/definitions/project'
+          required: true
+
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        201:
+          description: Successful response with details of the newly created project.
+          # A schema describing the response object.
+          schema:
+            $ref: '#/definitions/project'
+
+
+  '/users/{userId}/targets/':
+
+    get:
+      summary: Get the set of deployment environments/targets associated with the user specified by `userId`.
+      description: |
+        Get the set of deployment environments/targets associated with the user
+        specified in the request. If there are no matching environments, return
+        a 200/OK and an empty set.
+      operationId: getEnvironmentsForUser
+      consumes:
+        - application/json # This operation doesn't actually consume anything, this should be removed?
+      produces:
+        - application/json
+      parameters:
+        - name: userId
+          in: path
+          description: The user id to get environments for.
+          required: true
+          type: integer
+          format: int32
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        200:
+          description: Successful response with a list of targets or empty list if there is no targets for the user.
+          # A schema describing your response object.
+
+          schema:
+            $ref: '#/definitions/targets'
+
+    post:
+      summary: Create a new deployment environment.
+      description: |
+        Create a new deployment environment for the specified user and per the params in the body.
+        Return 201 on success, and 500 on failure.
+      operationId: createEnvironment
+      consumes:
+        - application/json
+      produces:
+         - application/json
+      parameters:
+        - name: userId
+          in: path
+          description: The user id to create the environment for.
+          required: true
+          type: integer
+          format: int32
+
+        - name: target
+          in: body
+          description: The target JSON to post.
+          schema:
+            $ref: '#/definitions/target'
+          required: true
+
+      # Expected responses for this operation:
+      responses:
+        # Response code
+        201:
+          description: Returns newly created target object.
+          schema:
+            $ref: '#/definitions/target'
+        # Response code
+        500:
+          description: Failed to creates a new target.
+
+
+
+
+##########################################################################
+#                                                                        #
+#                         DEFINITIONS (MODELS)                           #
+#                                                                        #
+##########################################################################
+definitions:
+
+
+  ############## Model: branch ##############
+  branch:
+    type: object
+    description: |
+      A branch of a repo.
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        description: The branch name, e.g. `master`.
+      allCommitsLoaded:
+        type: boolean
+        description: |
+          This is `true` if all commits for this branch have been loaded. TBD: This looks like some UI-related funkiness.
+      commitPagesLoaded:
+        type: integer
+        format: int32
+        description: The number of commit pages loaded (for the purposes of paging through the set of commits).
+      commit:
+        $ref: '#/definitions/commit'
+      commits:
+        type: array
+        description: An array of `commit` objects, which can be empty.
+        items:
+          $ref: '#/definitions/commit'
+
+
+  ############## Model: commit ##############
+  commit:
+    type: object
+    description: |
+      A commit to a repo.
+    required:
+      - sha
+      - url
+    properties:
+      sha:
+        type: string
+        description: The SHA of the commit, e.g. `16db3f928436de3cb14179f6a2d6e86220d6943c`.
+      url:
+        type: string
+        description: The URL of the commit, e.g. `https://github.com/foobar/foobar.github.io/commit/16db3f928436de3cb14179f6a2d6e86220d6943c`.
+
+
+  ############## Model: deployment ##############
+  deployment:
+    type: object
+    description: Models a deployment.
+    required:
+      - id
+      - name
+      - createdDate
+      - buildId
+      - projectId
+    properties:
+      id:
+        type: integer
+        format: int32
+        description: The internal deployment id.
+      buildId:
+        type: integer
+        format: int32
+        description: The build id to be deployed.
+      projectId:
+        type: integer
+        format: int32
+        description: The project id to be deployed.
+      name:
+        type: string
+        description: The name of the deployment.
+      createdDate:
+        type: string
+        description: Date time when deployment is created.
+      browseUrl:
+        type: string
+        description: The url where the build is deployed.
+
+
+  ############## Model: deployments ##############
+  deployments:
+    type: object
+    description: |
+      The Deployments for a project. This object wraps an array of `deployment` objects.
+    required:
+      - deployments
+    properties:
+      deployments:
+        type: array
+        description: An array of `Deployment` objects, which can be empty.
+        items:
+          $ref: '#/definitions/deployment'
+
+
+  ############## Model: error ##############
+  error:
+    type: object
+    description: |
+      A standard error object returned by all API calls. TBD: this should be flattened into a single object,
+      rather than having a nested `error` object.
+    required:
+      - apiVersion
+      - error
+    properties:
+      apiVersion:
+        type: string
+        description: The API version, e.g. `v1`.
+      error:
+        type: object
+        description: A standard error object returned by all API calls.
+        required:
+          - code
+          - message
+        properties:
+          code:
+            type: string
+            description: The error code, usually an integer, often a HTTP status code.
+          message:
+            type: string
+            description: The message associated with the error.
+          log:
+            type: string
+            description: Any additional error information, such as log entries, stack trace, etc. Likely to be turned off in production environments.
+
+
+  ############## Model: member ##############
+  member:
+    type: object
+    description: |
+      A member (user) of a project.
+    required:
+      - uid
+    properties:
+      uid:
+        type: integer
+        format: int32
+        description: The user id of the project member.
+      projectId:
+        type: integer
+        format: int32
+        description: The id of the project that the user is a member of.
+
+
+  ############## Model: members ##############
+  members:
+    type: object
+    description: |
+      The members owned by a project. This object wraps an array of `member` objects.
+    required:
+      - members
+    properties:
+      members:
+        type: array
+        description: An array of `member` objects, which can be empty.
+        items:
+          $ref: '#/definitions/member'
+
+
+  ############## Model: project ##############
+  project:
+    type: object
+    description: |
+      Models an individual project.
+    required:
+      - id
+      - name
+      - type
+    properties:
+      id:
+        type: integer
+        format: int32
+        description: The internal project id.
+      name:
+        type: string
+        description: The user-provided label for the project. # This field should be renamed to 'label'
+      'type':
+        type: string
+        description: The platform type of the project, e.g. 'nodejs' or 'java', etc.
+      lastCommitSha:
+        type: string
+        description: The last git commit SHA.
+      targets:
+        type: array
+        description: An array of target deployment environments (such as a CloudFoundry or AWS instance) that the project is deployed to.
+        items:
+          $ref: '#/definitions/target'
+      userId:
+        type: integer
+        format: int32
+        description: The internal user id of the project owner.
+      joinCode:
+        type: string
+        description: The (semi-secret) code that an invited user users to join the project.
+      repo:
+        $ref: '#/definitions/repo'
+      token:
+        type: string
+        description: The GitHub token to use (presumably???)
+      branchRefName:
+        type: string
+        description: The branch name, e.g.`master`
+      cloudFoundryEnvironment:
+        # description: The (FIXME: HARDCODED!) Cloud Foundry environment that this project is deployed to.
+        $ref: '#/definitions/target'
+      members:
+        type: array
+        description: The members of this project.
+        items:
+          $ref: '#/definitions/member'
+
+
+  ############## Model: projects ##############
+  projects:
+    type: object
+    description: |
+      The projects owned by a user. This object wraps an array of `project` objects.
+    required:
+      - projects
+    properties:
+      projects:
+        type: array
+        description: An array of `project` objects, which can be empty.
+        items:
+          $ref: '#/definitions/project'
+
+
+  ############## Model: repo ##############
+  repo:
+    type: object
+    description: Models a Version Control System repository, such as a GitHub repo, and references a specific branch.
+    required:
+      - vcs
+      - owner
+      - name
+      - branch
+      - cloneUrl
+      - sshUrl
+      - httpUrl
+
+    properties:
+      vcs:
+        type: string
+        description: The repo type, e.g. `github`
+      full_name:
+        type: string
+        description: The full name of the repo (typically `owner/repo`), e.g. `foobar/foobar.github.io`.
+      owner:
+        type: string
+        description: The owner of the repo (as determined by the repo itself), e.g. `foobar`
+      name:
+        type: string
+        description: The name of the repo, e.g. `hello-node`.
+      githubRepoId:
+        type: string
+        description: For GitHub repos, the unique GitHub identifier.
+      branch:
+        type: string
+        description: The repo branch being referenced, e.g. `master`.
+      cloneUrl:
+        type: string
+        description: The HTTPS URL used to clone the repo.
+      sshUrl:
+        type: string
+        description: The SSH URL used to clone the repo.
+      httpUrl:
+        type: string
+        description: The repo home page.
+      webHookId:
+        type: string
+        description: On GitHub, this is the unique id of the webhook for this repo that calls back to N0deJSAPI.
+      secret:
+        type: string
+        description: The repo secret used to create a web-hook..
+      branches:
+        type: array
+        description: |
+          The set of branches for this repo.
+        items:
+          $ref: '#/definitions/branch'
+
+
+  ############## Model: target ##############
+  target:
+    type: object
+    description: Models a deployment target/environment (e.g. a CloudFoundry instance) that a project can be deployed to.
+    required:
+      - id
+      - type
+      - url
+      - userName
+      - password
+      - name
+      - organization
+      - space
+    properties:
+      id:
+        type: integer
+        format: int32
+        description: The internal id of this target instance.
+      'type':
+        type: string
+        description: The type of target environment, e.g. `cloudfoundry`, `aws`, etc..
+      url:
+        type: string
+        description: The URL endpoint that the target is accessible at.
+      userName:
+        type: string
+        description: The username to authenticate to the target with.
+      'password':
+        type: string
+        description: The password to authenticate to the target with.
+      name:
+        type: string
+        description: The user-provided label for this target. # This field should be renamed to label
+      organization:
+        type: string
+        description: The organization under which a project will be deployed to this target.
+      space:
+        type: string
+        description: The space within an organization that a project will be deployed under on this target.
+
+
+  ############## Model: targets ##############
+  targets:
+    type: object
+    description: |
+      The targets owned by a user. This object wraps an array of `target` objects.
+    required:
+      - targets
+    properties:
+      targets:
+        type: array
+        description: An array of `target` objects, which can be empty.
+        items:
+          $ref: '#/definitions/target'
+
+
+  ############## Model: user ##############
+  user:
+    type: object
+    description: Models a user object.
+    required:
+      - userId
+      - login
+      - vcs
+      - secret
+    properties:
+      id:
+        type: integer
+        format: int32
+        description: The internal id of a user.
+      userId:
+        type: string
+        description: The userId of a user.
+      login:
+        type: string
+        description: The login name of the user
+      vcs:
+        type: string
+        description: The version control system, (eg. github).
+      secret:
+        type: string
+        description: The login token.
